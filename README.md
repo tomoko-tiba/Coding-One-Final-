@@ -6,12 +6,13 @@ Yan Wang 22019755
 - [Install](#Install)
 - [Details](#Details)
     - [Geometry](#Geometry)
+    - [Animate](#Animate)
     - [Physics](#Physics)
     - [Interaction](#Interaction)
     
 ## Introduction
 
-我基于three.js创建了一个互动式的网页海报,将各种图形和字体结合在画面中，同时点击画面中的球体还可以改变颜色和得到声音的反馈，给体验者多方面的感官体验。同时，我还在这个项目中运用了了物理运动库-cannon.es，让图形的运动更生动。
+I created an interactive web poster based on three.js, combining various graphics and fonts on the screen, while clicking on the spheres on the screen changes the colour and gives sound feedback, giving a multi-sensory experience. I also used the physical motion library, cannon.es, in this project to bring the graphics to life.
 
 Click here to play : https://final-wang-yan.vercel.app/
 
@@ -28,66 +29,67 @@ $ npm run dev
 
 ## Details
 
-接下来我会展示一下在这个项目中所用到的部分技术
+I will then show some of the techniques used in this project.
 
 ### Geometry and material
 
-我将文字的原始obj文件转换为json文件后，使用FontLoader加载，加入厚度后使它成为3d的图形。
+After converting the raw obj file of the text to a json file, I loaded it using FontLoader, added the thickness and made it into a 3d graphic.
 
 ```sh
 const fontLoader = new FontLoader();
 
 function loadText(position){
 		
-	fontLoader.load(
-		'./font/Planet Kosmos.json',
-		(font) => {
-			const textInfo = {
-				font: font,
-				size: 0.5,
-				height: 0.3,
-				curveSegments: 12,
-				bevelEnabled: true,
-				bevelThickness: 0.03,
-				bevelSize: 0.02,
-				bevelOffset: 0,
-				bevelSegments: 5
-			};
+fontLoader.load(
+	'./font/Planet Kosmos.json',
+	(font) => {
+		const textInfo = {
+			font: font,
+			size: 0.5,
+			height: 0.3,
+			curveSegments: 12,
+			bevelEnabled: true,
+			bevelThickness: 0.03,
+			bevelSize: 0.02,
+			bevelOffset: 0,
+			bevelSegments: 5
+		};
 
-			const textGeometry = new TextGeometry('\' Hello', textInfo);
-			const textGeometry2 = new TextGeometry('World \'', textInfo);
-			const textGeometry3 = new TextGeometry('from', textInfo);
-			const textGeometry4 = new TextGeometry('yenny', textInfo);
+		const textGeometry = new TextGeometry('\' Hello', textInfo);
+		const textGeometry2 = new TextGeometry('World \'', textInfo);
+		const textGeometry3 = new TextGeometry('from', textInfo);
+		const textGeometry4 = new TextGeometry('yenny', textInfo);
 
-			textGeometry.center();
-			textGeometry2.center();
-			textGeometry3.center();
-			textGeometry4.center();
+		textGeometry.center();
+		textGeometry2.center();
+		textGeometry3.center();
+		textGeometry4.center();
 
-			const textMaterial = new THREE.MeshMatcapMaterial({ matcap : matcapTexture });
-			let zMove = 0;
-			const text = new THREE.Mesh(textGeometry, textMaterial);
-			const text2 = new THREE.Mesh(textGeometry2, textMaterial);
-			const text3 = new THREE.Mesh(textGeometry3, textMaterial);
-			const text4 = new THREE.Mesh(textGeometry4, textMaterial);
-			text.position.set(position.x, position.y+1.2 + zMove, position.z);
-			text2.position.set( position.x, position.y+0.43 + zMove, position.z);
-			text3.position.set( position.x, position.y-0.43 + zMove, position.z);
-			text4.position.set( position.x, position.y-1.3 + zMove, position.z);
-			scene.add(text, text2, text3, text4);
+		const textMaterial = new THREE.MeshMatcapMaterial({ matcap : matcapTexture });
+		let zMove = 0;
+		const text = new THREE.Mesh(textGeometry, textMaterial);
+		const text2 = new THREE.Mesh(textGeometry2, textMaterial);
+		const text3 = new THREE.Mesh(textGeometry3, textMaterial);
+		const text4 = new THREE.Mesh(textGeometry4, textMaterial);
+		text.position.set(position.x, position.y+1.2 + zMove, position.z);
+		text2.position.set( position.x, position.y+0.43 + zMove, position.z);
+		text3.position.set( position.x, position.y-0.43 + zMove, position.z);
+		text4.position.set( position.x, position.y-1.3 + zMove, position.z);
+		scene.add(text, text2, text3, text4);
 		}
 	);
 }
 
 loadText({x: 0, y:0, z: 0});
 ```
-文字的材质我使用了matcap，这种材质不受光源的影响，会随着摄像头的移动而改变物体的光影效果。
+
+For the text I used matcap, a material that is not affected by the light source and changes the light and shadow effect of the object as the camera moves.
 
 ```sh
 const textMaterial = new THREE.MeshMatcapMaterial({ matcap : matcapTexture });
 ```
 
-背景的装饰是使用循环生成的一个线框的正方体矩阵。
+The background is decorated with a square matrix of wireframes generated using a loop.
 
 ```sh
 //cube matrix
@@ -118,7 +120,7 @@ for(let i = 0; i < 10; i ++){
 }
 ```
 
-同时还增加了烟雾的效果，让远处的物体颜色变暗，从而使整体的氛围感更强。
+A smoke effect has also been added to darken the colours of distant objects, thus giving an overall sense of atmosphere.
 
 ```sh
 const fog = new THREE.Fog('#000000', 1, 15);
@@ -128,7 +130,7 @@ scene.fog = fog;
 
 ### Animate
 
-运用三角函数让文字进行前后的运动，并将这部分代码放在animateLoop函数中循环调用，实时更新。
+Use trigonometric functions to make the text move backwards and forwards, and place this part of the code in an animateLoop function to be called in a loop and updated in real time.
 
 ```sh
 for(let i = 0; i < textShapeToUpdate.length; i++){
@@ -137,4 +139,90 @@ for(let i = 0; i < textShapeToUpdate.length; i++){
     else directionZ = -1
     textShapeToUpdate[i].mesh.position.z = Math.sin(elapsedTime * 0.5 ) * 0.8 * Math.cos(elapsedTime) * directionZ;
 }
+```
+### Physics
+
+To achieve the effect of displaying physics, I used the canon-es library. Using canon-es to generate a mesh of the same size as the sphere in three.js, and copying the position of the body to the mash, I was able to make the sphere in three.js achieve physical movement.
+
+```sh
+const createSphere = (radius, position) => {
+	//three.js mesh
+	const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+	mesh.scale.set(radius, radius, radius);
+	mesh.castShadow = true;
+	mesh.position.copy(position);
+	scene.add(mesh);
+	objectsToTest.push(mesh);
+	
+	//Cannon js body
+	const sphereShape = new CANNON.Sphere(radius);
+	const sphereBody = new CANNON.Body({
+		mass : 1,
+		position : new Vec3(0, 4, 0),
+		shape : sphereShape,
+		material : defualtMaterial
+	});
+	sphereBody.position.copy(position);
+	//sphereBody.addEventListener('collide', playHitSound);
+	world.addBody(sphereBody);
+
+	//what need to be updated
+	objToUpdate.push({
+		mesh : mesh,
+		body : sphereBody
+	});
+}
+```
+
+And bind the body of the cannon to the mesh of three.js in the animateLoop function, updating it in real time.
+
+```sh
+for(const object of objToUpdate){
+	object.mesh.position.copy(object.body.position);
+}
+```
+
+Create multiple boxBody to the corresponding text at the same time and set the body's mass to 0 to allow him to bounce the ball without being physically moved out of position.
+
+![](https://github.com/tomoko-tiba/Coding-One-Final-/blob/master/2png)
+
+### Interaction
+
+The use of rayCast function to determine if the mouse is resting on an object and to change the colour of the object when clicked, as well as playing sound effects, makes the interactive experience more interesting for the audience.
+
+```sh
+const raycaster = new THREE.Raycaster();
+let currentIntersect = null;
+
+function animateLoop(){
+	raycaster.setFromCamera(mouse, camera)
+
+	const intersects = raycaster.intersectObjects(objectsToTest)
+
+	if(intersects.length){
+		if(!currentIntersect){
+			//console.log('mouse enter')
+			currentIntersect = intersects[0];
+			//console.log(currentIntersect);
+		}
+	}else{
+		if(currentIntersect){
+			//console.log('mouse leave')
+			currentIntersect = null
+		}
+	}
+}
+
+window.addEventListener('click', () =>
+{
+	if(currentIntersect)
+	{
+		let i;
+		if(Math.random()>0.7)i = 0;
+		else i = 1;
+		currentIntersect.object.material = color[i];
+	    playHitSound();
+	}
+	
+})
 ```
