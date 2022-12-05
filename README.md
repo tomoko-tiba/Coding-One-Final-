@@ -14,8 +14,9 @@ Yan Wang 22019755
 
 I created an interactive web poster based on three.js, combining various graphics and fonts on the screen, while clicking on the spheres on the screen changes the colour and gives sound feedback, giving a multi-sensory experience. I also used the physical motion library, cannon.es, in this project to bring the graphics to life.
 
-Github link ：https://github.com/tomoko-tiba/Coding-One-Final-/blob/master/README.md
-Click here to play : https://final-wang-yan.vercel.app/
+- Github link ：https://github.com/tomoko-tiba/Coding-One-Final-/blob/master/README.md
+
+- Click here to play : https://final-wang-yan.vercel.app/
 
 ![](https://github.com/tomoko-tiba/Coding-One-Final-/blob/master/1.png)
 
